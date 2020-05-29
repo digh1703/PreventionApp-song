@@ -1,12 +1,24 @@
 package com.example.preventionapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.res.AssetManager;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.android.volley.toolbox.Volley;
+import com.example.preventionapp.Crime;
+import com.example.preventionapp.R;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
@@ -14,6 +26,7 @@ import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.Overlay;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.util.FusedLocationSource;
 
@@ -28,25 +41,38 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CrimeMap extends AppCompatActivity implements OnMapReadyCallback,NaverMap.OnCameraChangeListener, NaverMap.OnCameraIdleListener {
+
+public class CrimeMap extends Fragment implements Overlay.OnClickListener,OnMapReadyCallback,NaverMap.OnCameraChangeListener, NaverMap.OnCameraIdleListener {
 
     private static final int ACCESS_LOCATION_PERMISSION_REQUEST_CODE=100;
     private FusedLocationSource locationSource;
     private NaverMap naverMap;
     private List<Marker> markerList=new ArrayList<>();
+    private InfoWindow infoWindow;
     private boolean isCameraAnimated=false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_crime_map);
 
-        MapFragment mapFragment=(MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     @Override
+    @NonNull
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.activity_crime_map, container, false);
+
+        MapFragment mapFragment=(MapFragment)this.getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        return v;
+    }
+
+
+    @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
+
+        this.naverMap = naverMap;
         FusedLocationSource locationSource=new FusedLocationSource(this,100);
         naverMap.setLocationSource(locationSource);
         UiSettings uiSettings=naverMap.getUiSettings();
@@ -56,12 +82,33 @@ public class CrimeMap extends AppCompatActivity implements OnMapReadyCallback,Na
 
         getjson();
 
+        infoWindow=new InfoWindow();
 
-        }
+        infoWindow.setAdapter(new InfoWindow.DefaultViewAdapter(getActivity()) {
+            @NonNull
+            @Override
+            protected View getContentView(@NonNull InfoWindow infoWindow) {
+                Marker marker =infoWindow.getMarker();
+                Crime crime=(Crime) marker.getTag();
+                View view=View.inflate(getActivity(), R.layout.view_info_window,null);
+                ((TextView) view.findViewById(R.id.name)).setText(crime.getName());
+                ((TextView) view.findViewById(R.id.murder)).setText("살인: "+crime.getMurder());
+                ((TextView) view.findViewById(R.id.robbery)).setText("강도: "+crime.getRobbery());
+                ((TextView) view.findViewById(R.id.rape)).setText("강간: "+crime.getRape());
+                ((TextView) view.findViewById(R.id.larceny)).setText("절도: "+crime.getLarceny());
+                ((TextView) view.findViewById(R.id.violence)).setText("폭행: "+crime.getViolence());
+
+                return view;
+            }
+        });
+
+    }
+
+
 
     private void getjson(){
 
-        AssetManager assetManager=getAssets();
+        AssetManager assetManager=getActivity().getAssets();
 
         try {
             InputStream is= assetManager.open("jsons/crime.json");
@@ -106,20 +153,25 @@ public class CrimeMap extends AppCompatActivity implements OnMapReadyCallback,Na
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
-                System.out.println(i);
                 JSONObject jo = jsonArray.getJSONObject(i);
                 Crime crimedata = new Crime();
-                List<Double> latitude=new ArrayList<>();
-                List<Double> longtitude=new ArrayList<>();
 
                 crimedata.setLat(jo.getDouble("latitude"));
                 crimedata.setLng(jo.getDouble("longtitude"));
+                crimedata.setName(jo.getString("id"));
+                crimedata.setMurder(jo.getString("murder"));
+                crimedata.setRobbery(jo.getString("robbery"));
+                crimedata.setRape(jo.getString("rape"));
+                crimedata.setLarceny(jo.getString("larceny"));
+                crimedata.setViolence(jo.getString("violence"));
 
 
                 Marker marker = new Marker();
+                marker.setTag(crimedata);
                 marker.setPosition(new LatLng(crimedata.getLat(), crimedata.getLng()));
                 marker.setIcon(OverlayImage.fromResource(R.drawable.marker_green));
                 marker.setMap(naverMap);
+                marker.setOnClickListener(this);
                 markerList.add(marker);
 
 
@@ -138,4 +190,11 @@ public class CrimeMap extends AppCompatActivity implements OnMapReadyCallback,Na
     }
 
 
+    @Override
+    public boolean onClick(@NonNull Overlay overlay) {
+
+        Marker marker=(Marker) overlay;
+        infoWindow.open(marker);
+        return false;
+    }
 }

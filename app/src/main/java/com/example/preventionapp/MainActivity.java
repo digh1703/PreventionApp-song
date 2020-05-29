@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
                         fragmentTransaction.commit();
                         return true;
                     case R.id.nav_1:
-                        Toast.makeText(getApplicationContext(), "SelectedItem 1", Toast.LENGTH_SHORT).show();
+                        fragmentTransaction.replace(R.id.fragment2, new CrimeMap());
+                        fragmentTransaction.commit();
                         return true;
                     case R.id.nav_2:
                         fragmentTransaction.replace(R.id.fragment2, new CallFragment());

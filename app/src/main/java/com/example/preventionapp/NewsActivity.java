@@ -91,9 +91,10 @@ public class NewsActivity extends Fragment {
     public void getNews(){//json를 활용해 정보를 받아오는 함수
 
 
-        String url ="https://newsapi.org/v2/everything?qintitle=%22%EB%B2%94%ED%96%89%22OR%22%ED%8F%AD%ED%96%89%22OR%22%EA%B0%95%EA%B0%84%22OR%22%EC%A0%88%EB%8F%84%22OR%22%EA%B5%AC%EC%86%8D%22OR%22%EA%B2%80%EA%B1%B0%22&sortby=publishedat&apiKey=81fce0774dc242a09cba4d1e1557fdfc";
+        String url ="https://newsapi.org/v2/everything?qintitle=%22%EB%B2%94%ED%96%89%22OR%22%ED%8F%AD%ED%96%89%22OR%22%EA%B0%95%EA%B0%84%22OR%22%EC%A0%88%EB%8F%84%22OR%22%EA%B5%AC%EC%86%8D%22OR%22%EA%B2%80%EA%B1%B0%22OR%22%ED%98%90%EC%9D%98%22&sortby=publishedat&apiKey=81fce0774dc242a09cba4d1e1557fdfc";
         // 입력한 주소에서 string형태 응답 요청
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        StringRequest stringRequest;
+        stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
