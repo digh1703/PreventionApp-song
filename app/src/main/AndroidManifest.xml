@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NewsActivity"></activity>
+        <activity android:name=".CrimeMapMenu"></activity>
+        <activity android:name=".NewsActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +27,7 @@
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="0l8htuamay" />
 
-        <activity android:name=".CrimeMap"></activity>
+        <activity android:name=".CrimeMap2" />
         <activity android:name=".InfoFragment" />
         <activity android:name=".DropdownAdapter" />
         <activity android:name=".LoginActivity" />
