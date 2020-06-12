@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         fragmentTransaction.commit();
                         return true;
                     case R.id.nav_1:
-                        fragmentTransaction.replace(R.id.fragment2, new CrimeMap());
+                        fragmentTransaction.replace(R.id.fragment2, new CrimeMapMenu());
                         fragmentTransaction.commit();
                         return true;
                     case R.id.nav_2:
