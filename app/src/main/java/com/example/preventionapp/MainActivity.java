@@ -1,5 +1,6 @@
 package com.example.preventionapp;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +20,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class MainActivity extends AppCompatActivity {
@@ -84,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
                         fragmentTransaction.commit();
                         return true;
                     case R.id.nav_3:
-                        Toast.makeText(getApplicationContext(), "SelectedItem 3", Toast.LENGTH_SHORT).show();
+                        fragmentTransaction.replace(R.id.fragment2, new HospitalMapFragment());
+                        fragmentTransaction.commit();
                         return true;
                     case R.id.nav_4:
                         fragmentTransaction.replace(R.id.fragment2, new InfoFragment());
@@ -106,6 +112,22 @@ public class MainActivity extends AppCompatActivity {
         //if(FirebaseAuth.getInstance().getCurrentUser()==null){
        //     startSignUpActivity();
        // }
+
+        TedPermission.with(this)
+                .setPermissionListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Toast.makeText(MainActivity.this, "위치 정보 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(List<String> deniedPermissions) {
+
+                    }
+                })
+                .setDeniedMessage("위치 정보 권한을 허용하여야 앱을 사용할 수 있습니다.")
+                .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
+                .check();
     }
 
 
